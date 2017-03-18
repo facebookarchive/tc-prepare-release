@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import os
 import subprocess
@@ -41,7 +43,7 @@ def has_develop():
     return 'develop' in results.decode('utf-8')
 
 
-def check_repo():
+def is_on_develop():
     logging.debug('Checking for develop branch...')
     branch = subprocess.check_output(
         ['git', 'symbolic-ref', '--short', 'HEAD'])
@@ -70,12 +72,40 @@ def create_new_branch():
     logging.info('Created branch %s', branch_name)
 
 
-def update_versions():
-    pass
+def find_and_replace(file_path, old_s, new_s):
+    with open(file_path, 'r') as file:
+        source = file.read()
+    source = source.replace(old_s, new_s)
+    with open(file_path, 'w') as file:
+        file.write(source)
 
 
-def make_commit():
-    pass
+def update_versions(old_v, new_v):
+    # TODO validate versions
+
+    rock = 'torchcraft-%s.rockspec' % old_v
+
+    find_and_replace(rock, old_v, new_v)
+    find_and_replace('CMakeLists.txt',
+                     old_v.replace('-', '.'), new_v.replace('-', '.'))
+    find_and_replace('quick_setup.sh', old_v, new_v)
+
+    new_rock = 'torchcraft-%s.rockspec' % new_v
+    print(rock)
+    print(new_rock)
+    os.rename(rock, new_rock)
+
+
+def make_commit(new_v):
+    logging.debug("Adding modified files...")
+    subprocess.check_output(['git', 'add', 'CMakeLists.txt'])
+    subprocess.check_output(['git', 'add', 'torchcraft*'])
+    subprocess.check_output(['git', 'add', 'quick_setup.sh'])
+    logging.info("Creating commit for version %s" % new_v)
+    subprocess.check_output([
+        'git', 'commit', '-m', 'Auto: Update version files to v%s' % new_v
+    ])
+    logging.debug("Done")
 
 
 def push():
@@ -89,6 +119,10 @@ def create_zip():
 def main():
 
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'old_version', type=str, help='Version to update TorchCraft from')
+    parser.add_argument(
+        'new_version', type=str, help='Version to update TorchCraft to')
     parser.add_argument(
         'tcdir',
         type=str,
@@ -106,15 +140,16 @@ def main():
 
     good_repo = False
     try:
+        # May the Functional Programming God forgive me
         with cd(args.tcdir, args.b):
-            # Side effects ftw
             has_develop()
             good_repo = True
-            check_repo()
+
+            is_on_develop()
             pull_repo()
             create_new_branch()
-            update_versions()
-            make_commit()
+            update_versions(args.old_version, args.new_version)
+            make_commit(args.new_version)
             push()
             create_zip()
     except:
@@ -122,6 +157,7 @@ def main():
             # HACK HACK HACK If you are wondering why we do this, it's because
             # it makes debugging / development easier. I'm sorry.
             with cd(args.tcdir, False):
+                subprocess.check_output(['git', 'checkout', 'develop'])
                 subprocess.check_output(['git', 'checkout', 'develop'])
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
