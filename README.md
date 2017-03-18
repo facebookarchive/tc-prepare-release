@@ -4,18 +4,18 @@ Bump version of TorchCraft automagically.
 
 There are two tools, `tc-bumper` and `tc-make-release`.
 
-* `tc-bumper`:
+* `tc-bumper`
 
-1. creates a `new_release` branch (trying very hard);
-2. replaces the version in certain files such as
-   `$TORHCRAFT_PATH/CMakeLists.txt` and `$TORCHCRAFT_PATH/quick_setup.sh`;
-3. commits changes and pushes the new branch to whatever remote is assigned
-   to `origin` in `$TORCHCRAFT_PATH`.
+  1. creates a `new_release` branch (trying very hard);
+  2. replaces the version in certain files such as
+     `$TORHCRAFT_PATH/CMakeLists.txt` and `$TORCHCRAFT_PATH/quick_setup.sh`;
+  3. commits changes and pushes the new branch to whatever remote is assigned
+     to `origin` in `$TORCHCRAFT_PATH`.
 
-* `tc-make-release`:
+* `tc-make-release`
 
-1. copies the release files in the correct order / tree structure;
-2. zips everything up into one binary that you can upload on GitHub.
+  1. copies the release files in the correct order / tree structure;
+  2. zips everything up into one binary that you can upload on GitHub.
 
 
 ---
@@ -56,6 +56,5 @@ $ python tc-bumper $OLD_VERSION $NEW_VERSION $TORHCRAFT_PATH -b -s
 ```
 
 * Create zip:
-
- - Compile solution on Windows and copy `BWEnv.exe` and `BWEnv.dll` to `tc-bumper/out/`;
- - Run `python tc-make-release.py $NEW_VERSION $TORCHCRAFT_PATH`.
+  - Compile solution on Windows and copy `BWEnv.exe` and `BWEnv.dll` to `tc-bumper/out/`;
+  - Run `python tc-make-release.py $NEW_VERSION $TORCHCRAFT_PATH`.
