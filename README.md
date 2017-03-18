@@ -29,7 +29,7 @@ work. You probably want to use this only if you are core developer.
 ## Installation
 
 * Install python 2 or python 3;
-* `$ git clone git@github.com:TorchCraft/tc-bumper`.
+* `$ git clone git@github.com:TorchCraft/tc-prepare-release`.
 
 
 ## Usage
@@ -39,7 +39,7 @@ work. You probably want to use this only if you are core developer.
 * Create release:
 
 ```bash
-$ cd tc-bumper
+$ cd tc-prepare-release
 
 # First off, visualise the options in case there's anything you need.
 
