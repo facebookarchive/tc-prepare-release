@@ -50,7 +50,7 @@ def is_on_develop():
 
 
 def stash_stuff():
-    logging.info("Stashing dirt")
+    logging.info('Stashing dirt')
     subprocess.check_output(['git', 'stash'])
 
 
@@ -94,28 +94,23 @@ def update_versions(old_v, new_v):
                      old_v.replace('-', '.'), new_v.replace('-', '.'))
 
     new_rock = 'torchcraft-%s.rockspec' % new_v
-    logging.info("Creating %s" % new_rock)
+    logging.info('Creating %s' % new_rock)
     os.rename(rock, new_rock)
 
 
 def make_commit(new_v):
-    logging.debug("Adding modified files...")
+    logging.debug('Adding modified files...')
     subprocess.check_output(['git', 'add', 'CMakeLists.txt'])
     subprocess.check_output(['git', 'add', 'torchcraft*'])
     subprocess.check_output(['git', 'add', 'quick_setup.sh'])
-    logging.info("Creating commit for version %s" % new_v)
+    logging.info('Creating commit for version %s' % new_v)
     subprocess.check_output(
         ['git', 'commit', '-m', 'Auto: Update version files to v%s' % new_v])
 
 
 def push(branch_name):
-    logging.info("Pushing new branch %s" % branch_name)
+    logging.info('Pushing new branch %s' % branch_name)
     subprocess.check_output(['git', 'push', 'origin', branch_name])
-
-
-def create_zip():
-    # TODO
-    pass
 
 
 def main():
@@ -140,7 +135,10 @@ def main():
         action='store_true',
         help=('CHEAT MODE (USE WITH CAUTION *AND*' +
               ' ONLY IF YOU ARE DEVELOPING TC-BUMPER)'))
-
+    parser.add_argument(
+        '--make_zip',
+        action='store_true',
+        help='If used, makes the script only produce a zip file.')
     args = parser.parse_args()
 
     if args.d:
@@ -158,13 +156,13 @@ def main():
             is_on_develop()
             if args.s:
                 stash_stuff()
-
             pull_repo()
             branch = create_new_branch()
+
             update_versions(args.old_version, args.new_version)
+
             make_commit(args.new_version)
             push(branch)
-            create_zip()
     except:
         if args.cheat and good_repo:
             # HACK HACK HACK If you are wondering why we do this, it's because
