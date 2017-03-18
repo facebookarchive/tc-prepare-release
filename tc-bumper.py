@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import print_function
 
 import sys
@@ -87,9 +88,10 @@ def update_versions(old_v, new_v):
     rock = 'torchcraft-%s.rockspec' % old_v
 
     find_and_replace(rock, old_v, new_v)
+    find_and_replace('quick_setup.sh', old_v, new_v)
+
     find_and_replace('CMakeLists.txt',
                      old_v.replace('-', '.'), new_v.replace('-', '.'))
-    find_and_replace('quick_setup.sh', old_v, new_v)
 
     new_rock = 'torchcraft-%s.rockspec' % new_v
     logging.info("Creating %s" % new_rock)
@@ -102,18 +104,17 @@ def make_commit(new_v):
     subprocess.check_output(['git', 'add', 'torchcraft*'])
     subprocess.check_output(['git', 'add', 'quick_setup.sh'])
     logging.info("Creating commit for version %s" % new_v)
-    subprocess.check_output([
-        'git', 'commit', '-m', 'Auto: Update version files to v%s' % new_v
-    ])
+    subprocess.check_output(
+        ['git', 'commit', '-m', 'Auto: Update version files to v%s' % new_v])
 
 
 def push(branch_name):
     logging.info("Pushing new branch %s" % branch_name)
-    subprocess.check_output([
-        'git', 'push', 'origin', branch_name])
+    subprocess.check_output(['git', 'push', 'origin', branch_name])
 
 
 def create_zip():
+    # TODO
     pass
 
 
@@ -134,6 +135,11 @@ def main():
         '-b', action='store_true', help='Backup TorchCraft directory')
     parser.add_argument(
         '-s', action='store_true', help='Stash dirt in repository')
+    parser.add_argument(
+        '--cheat',
+        action='store_true',
+        help=('CHEAT MODE (USE WITH CAUTION *AND*' +
+              ' ONLY IF YOU ARE DEVELOPING TC-BUMPER)'))
 
     args = parser.parse_args()
 
@@ -160,11 +166,10 @@ def main():
             push(branch)
             create_zip()
     except:
-        if good_repo:
+        if args.cheat and good_repo:
             # HACK HACK HACK If you are wondering why we do this, it's because
             # it makes debugging / development easier. I'm sorry.
             with cd(args.tcdir, False):
-                subprocess.check_output(['git', 'checkout', 'develop'])
                 subprocess.check_output(['git', 'checkout', 'develop'])
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(exc_type, exc_value, exc_traceback)
