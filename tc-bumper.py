@@ -70,6 +70,8 @@ def update_versions(old_v, new_v):
 
     find_and_replace('CMakeLists.txt',
                      old_v.replace('-', '.'), new_v.replace('-', '.'))
+    find_and_replace('py/setup.py',
+                     old_v.replace('-', '.'), new_v.replace('-', '.'))
 
     new_rock = 'torchcraft-%s.rockspec' % new_v
     logging.info('Creating %s' % new_rock)
@@ -81,6 +83,7 @@ def make_commit(new_v):
     subprocess.check_output(['git', 'add', 'CMakeLists.txt'])
     subprocess.check_output(['git', 'add', 'torchcraft*'])
     subprocess.check_output(['git', 'add', 'quick_setup.sh'])
+    subprocess.check_output(['git', 'add', 'py/setup.py'])
     logging.info('Creating commit for version %s' % new_v)
     subprocess.check_output(
         ['git', 'commit', '-m', 'Auto: Update version files to v%s' % new_v])
@@ -135,12 +138,11 @@ def main():
             if args.s:
                 stash_stuff()
             pull_repo()
-            branch = create_new_branch()
+            create_new_branch()
 
             update_versions(args.old_version, args.new_version)
 
             make_commit(args.new_version)
-            push(branch)
     except:
         if args.cheat and good_repo:
             # HACK HACK HACK If you are wondering why we do this, it's because
